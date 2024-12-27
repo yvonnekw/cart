@@ -1,5 +1,6 @@
 package com.auction.cart.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,6 +21,7 @@ public class Cart {
     private String username;
 
    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+   @JsonManagedReference
     private List<CartItem> items = new ArrayList<>();
 
     public Cart(String username) {
