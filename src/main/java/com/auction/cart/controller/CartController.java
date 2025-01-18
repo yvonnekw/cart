@@ -3,8 +3,7 @@ package com.auction.cart.controller;
 import com.auction.cart.dto.CartRequest;
 import com.auction.cart.dto.CartResponse;
 
-import com.auction.cart.dto.ProductResponse;
-import com.auction.cart.exception.ProductNotFoundException;
+import com.auction.cart.dto.UpdateCartItemRequest;
 import com.auction.cart.model.Cart;
 import com.auction.cart.model.CartItem;
 import com.auction.cart.repository.CartRepository;
@@ -12,15 +11,17 @@ import com.auction.cart.service.CartService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RestController
+//@CrossOrigin("*")
+//@CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/api/v1/carts")
 @RequiredArgsConstructor
 public class CartController {
@@ -34,11 +35,14 @@ public class CartController {
         return "cart api is working ";
     }
 
+    //@CrossOrigin(origins = "http://localhost:4200")
     @PostMapping("/add")
     public ResponseEntity<?> addItemToCart(
             @RequestHeader("X-Username") String username,
             @RequestBody CartRequest request) {
         try {
+            log.info("cart request body in the add controller {} ", request);
+            log.info("cart user details in the add controller {} ", username);
             CartResponse cartResponse = cartService.addItemToCart(username, request);
             return ResponseEntity.ok(cartResponse);
         } catch (Exception e) {
@@ -58,7 +62,6 @@ public class CartController {
         }
     }
 
-
     @GetMapping("/get-user-cart")
     public ResponseEntity<?> getCart(@RequestHeader("X-Username") String username) {
         try {
@@ -69,6 +72,38 @@ public class CartController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
         }
     }
+
+    //@CrossOrigin(origins = "http://localhost:4200")
+    @GetMapping("/items")
+    public ResponseEntity<Cart> getCartItems(@RequestHeader("X-Username") String username) {
+        Cart cartItems = cartService.getCartItems(username);
+        return ResponseEntity.ok(cartItems);
+    }
+
+    @DeleteMapping("/items/{itemId}")
+    public ResponseEntity<Void> removeItem(@PathVariable Long itemId) {
+        cartService.removeItem(itemId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<Void> updateCart(@RequestHeader("X-Username") String username,   @RequestBody UpdateCartItemRequest request) {
+        try {
+            cartService.updateCartItem(username, request);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException ex) {
+            log.error("Error updating cart: {}", ex.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); // Respond with 400 Bad Request
+        }
+    }
+
+    @GetMapping("/get-all-carts")
+    @ResponseStatus(HttpStatus.OK)
+    public List<CartResponse> getAllCarts() {
+        return cartService.getAllCarts();
+    }
+
+
 
 }
 
