@@ -2,6 +2,7 @@ package com.auction.cart.model;
 
 
 import com.auction.cart.dto.ProductRequest;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,10 +23,12 @@ public class CartItem {
     //private ProductRequest product;
    private Long productId;
 
-    private int quantity;
+    private Integer quantity;
 
     private BigDecimal price;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cart_id")
+    @JsonBackReference
     private Cart cart;
 }
