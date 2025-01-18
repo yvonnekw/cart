@@ -6,6 +6,6 @@ public record CartItemRequest(
         Long productId,
         String productName,
         int quantity,
-        double totalPrice
+        BigDecimal price
 ) {
 }
