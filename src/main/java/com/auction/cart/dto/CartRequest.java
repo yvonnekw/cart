@@ -7,7 +7,7 @@ public record CartRequest(
         @NotNull(message = "Product ID cannot be null")
         Long productId,
         @Min(value = 1, message = "Quantity must be at least 1")
-        int quantity
+        Integer quantity
 ) {
 }
 
