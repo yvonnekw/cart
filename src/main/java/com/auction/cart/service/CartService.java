@@ -1,10 +1,8 @@
 package com.auction.cart.service;
 
-import com.auction.cart.dto.CartItemResponse;
-import com.auction.cart.dto.CartRequest;
-import com.auction.cart.dto.CartResponse;
-import com.auction.cart.dto.ProductResponse;
+import com.auction.cart.dto.*;
 import com.auction.cart.exception.ProductNotFoundException;
+import com.auction.cart.exception.ResourceNotFoundException;
 import com.auction.cart.model.Cart;
 import com.auction.cart.model.CartItem;
 
@@ -21,6 +19,9 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -33,6 +34,37 @@ public class CartService {
     @Value("${application.config.product-url}")
     private String productServiceUrl;
 
+    public CartResponse addItemToCart(String username, CartRequest request) throws ProductNotFoundException {
+        Cart cart = cartRepository.findByUsername(username)
+                .orElseGet(() -> cartRepository.save(new Cart(username)));
+
+        ProductResponse productResponse = fetchProductById(request.productId(), username);
+
+        CartItem item = cart.getItems().stream()
+                .filter(i -> i.getProductId().equals(productResponse.productId()))
+                .findFirst()
+                .orElseGet(() -> {
+                    CartItem newItem = new CartItem();
+                    newItem.setProductId(productResponse.productId());
+                    newItem.setPrice(productResponse.price() != null ? productResponse.price() : BigDecimal.ZERO);
+                    newItem.setQuantity(0); // Initialize quantity to 0
+                    newItem.setCart(cart);
+                    return newItem;
+                });
+
+        item.setQuantity(item.getQuantity() + request.quantity());
+
+        if (!cart.getItems().contains(item)) {
+            cart.getItems().add(item);
+        }
+
+        cartRepository.save(cart);
+
+        return mapToResponse(cart);
+    }
+
+
+    /*
     public CartResponse addItemToCart(String username, CartRequest request) throws ProductNotFoundException {
         Cart cart = cartRepository.findByUsername(username)
                 .orElseGet(() -> cartRepository.save(new Cart(username)));
@@ -60,7 +92,37 @@ public class CartService {
 
         return mapToResponse(cart);
     }
+*/
 
+    /*
+    public CartResponse addItemToCart(String username, CartRequest request) throws ProductNotFoundException {
+        Cart cart = cartRepository.findByUsername(username)
+                .orElseGet(() -> cartRepository.save(new Cart(username)));
+
+        ProductResponse productResponse = fetchProductById(request.productId(), username);
+
+        CartItem item = cart.getItems().stream()
+                .filter(i -> i.getProductId().equals(productResponse.productId()))
+                .findFirst()
+                .orElseGet(() -> {
+                    CartItem newItem = new CartItem();
+                    newItem.setProductId(productResponse.productId());
+                    newItem.setPrice(productResponse.price() != null ? productResponse.price() : BigDecimal.ZERO);
+                    newItem.setCart(cart);
+                    return newItem;
+                });
+
+        item.setQuantity(item.getQuantity() + request.quantity());
+
+        if (!cart.getItems().contains(item)) {
+            cart.getItems().add(item);
+        }
+
+        cartRepository.save(cart);
+
+        return mapToResponse(cart);
+    }
+*/
     public CartResponse getCartByUsername(String username) {
         Cart cart = cartRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Cart not found for username: " + username));
@@ -80,6 +142,7 @@ public class CartService {
         if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
             ProductResponse productResponse = response.getBody();
             if (productResponse.price() == null) {
+                log.info("Product details in cart service " + response.getBody());
                 log.warn("Product with ID {} has a null price. Defaulting to 0.", productId);
                 return new ProductResponse(productResponse.productId(), productResponse.productName(), BigDecimal.ZERO, productResponse.description());
             }
@@ -109,6 +172,58 @@ public class CartService {
         cart.getItems().clear();
         cartRepository.save(cart);
     }
+
+    public Cart getCartItems(String username) {
+        return cartRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found for username: " + username));
+    }
+    public void removeItem(Long itemId) {
+        Cart item = cartRepository.findById(itemId)
+                .orElseThrow(() -> new ResourceNotFoundException("Item not found with id: " + itemId));
+        cartRepository.delete(item);
+    }
+
+    public void updateCartItem(String username, UpdateCartItemRequest request) {
+        Cart existingCart = cartRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("No cart exists for the user: " + username));
+
+        CartItem item = existingCart.getItems().stream()
+                .filter(cartItem -> cartItem.getProductId().equals(request.productId()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Product with ID " + request.productId() + " does not exist in the cart for user: " + username
+                ));
+
+        item.setQuantity(request.quantity());
+        cartRepository.save(existingCart);
+    }
+
+    public List<CartResponse> getAllCarts() {
+        return cartRepository.findAll()
+                .stream()
+                .map(cart -> new CartResponse(
+                        cart.getCartId(),
+                        cart.getItems()
+                                .stream()
+                                .map(cartItem -> new CartItemResponse(
+                                        cartItem.getCartItemId(),
+                                        cartItem.getProductId(),
+                                        cartItem.getQuantity(),
+                                        cartItem.getPrice()
+                                ))
+                                .collect(Collectors.toList())
+                ))
+                .collect(Collectors.toList());
+    }
+
+
+
+
+    /*
+    public void updateCart(Cart cart) {
+        cartRepository.save(cart);
+    }
+*/
 
         /*
     private ProductResponse fetchProductById(Long productId) throws ProductNotFoundException {
