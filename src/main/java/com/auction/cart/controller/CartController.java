@@ -37,12 +37,13 @@ public class CartController {
 
     //@CrossOrigin(origins = "http://localhost:4200")
     @PostMapping("/add")
-    public ResponseEntity<?> addItemToCart(
+    public ResponseEntity<?> addItemToCart(@RequestHeader("Authorization") String token,
             @RequestHeader("X-Username") String username,
             @RequestBody CartRequest request) {
         try {
             log.info("cart request body in the add controller {} ", request);
             log.info("cart user details in the add controller {} ", username);
+            log.info("cart user details in the add controller {} ", token);
             CartResponse cartResponse = cartService.addItemToCart(username, request);
             return ResponseEntity.ok(cartResponse);
         } catch (Exception e) {
@@ -52,7 +53,7 @@ public class CartController {
     }
 
     @DeleteMapping("/clear-cart")
-    public ResponseEntity<?> clearCart(@RequestHeader("X-Username") String username) {
+    public ResponseEntity<?> clearCart(@RequestHeader("Authorization") String token, @RequestHeader("X-Username") String username) {
         try {
             cartService.clearCart(username);
             return ResponseEntity.noContent().build();
@@ -63,7 +64,7 @@ public class CartController {
     }
 
     @GetMapping("/get-user-cart")
-    public ResponseEntity<?> getCart(@RequestHeader("X-Username") String username) {
+    public ResponseEntity<?> getCart(@RequestHeader("Authorization") String token, @RequestHeader("X-Username") String username) {
         try {
             CartResponse cartResponse = cartService.getCartByUsername(username);
             return ResponseEntity.ok(cartResponse);
@@ -75,7 +76,7 @@ public class CartController {
 
     //@CrossOrigin(origins = "http://localhost:4200")
     @GetMapping("/items")
-    public ResponseEntity<Cart> getCartItems(@RequestHeader("X-Username") String username) {
+    public ResponseEntity<Cart> getCartItems(@RequestHeader("Authorization") String token, @RequestHeader("X-Username") String username) {
         Cart cartItems = cartService.getCartItems(username);
         return ResponseEntity.ok(cartItems);
     }
@@ -87,7 +88,7 @@ public class CartController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<Void> updateCart(@RequestHeader("X-Username") String username,   @RequestBody UpdateCartItemRequest request) {
+    public ResponseEntity<Void> updateCart(@RequestHeader("Authorization") String token, @RequestHeader("X-Username") String username,   @RequestBody UpdateCartItemRequest request) {
         try {
             cartService.updateCartItem(username, request);
             return ResponseEntity.ok().build();
