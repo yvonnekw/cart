@@ -47,7 +47,7 @@ public class CartService {
                     CartItem newItem = new CartItem();
                     newItem.setProductId(productResponse.productId());
                     newItem.setPrice(productResponse.price() != null ? productResponse.price() : BigDecimal.ZERO);
-                    newItem.setQuantity(0); // Initialize quantity to 0
+                    newItem.setQuantity(0);
                     newItem.setCart(cart);
                     return newItem;
                 });
