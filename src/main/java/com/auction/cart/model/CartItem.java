@@ -21,7 +21,16 @@ public class CartItem {
 
     //@ManyToOne
     //private ProductRequest product;
-   private Long productId;
+    private Long productId;
+
+    //@Transient
+    private String productName;
+
+    //@Transient
+    private String description;
+
+    //@Transient
+    private String productImageUrl;
 
     private Integer quantity;
 

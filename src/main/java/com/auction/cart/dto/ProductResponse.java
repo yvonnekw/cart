@@ -1,14 +1,20 @@
 package com.auction.cart.dto;
 
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.math.BigDecimal;
 
-
-public record ProductResponse(
-        Long productId,
-        String productName,
-        BigDecimal price,
-        String description
-) {
-
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class ProductResponse {
+    private Long productId;
+    private String productName;
+    private String description;
+    private String productImageUrl;
+    private BigDecimal getBuyNowPrice;
+    private Integer quantity;
 }
