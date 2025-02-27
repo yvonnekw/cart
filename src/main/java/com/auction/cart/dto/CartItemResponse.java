@@ -1,14 +1,21 @@
 package com.auction.cart.dto;
 
-import com.auction.cart.model.Cart;
-import jakarta.persistence.ManyToOne;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
-public record CartItemResponse(
-        Long cartItemId,
-        Long productId,
-        int quantity,
-        BigDecimal price
-) {
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class CartItemResponse {
+    private Long cartItemId;
+    private Long productId;
+    private int quantity;
+    private BigDecimal price;
+    private String productName;
+    private String description;
+    private String productImageUrl;
 }
