@@ -1,7 +1,5 @@
 package com.auction.cart.model;
 
-
-import com.auction.cart.dto.ProductRequest;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -19,8 +17,6 @@ public class CartItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long cartItemId;
 
-    //@ManyToOne
-    //private ProductRequest product;
     private Long productId;
 
     //@Transient
