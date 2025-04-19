@@ -13,12 +13,3 @@ public class CartResponse {
     private Long cartId;
     private List<CartItemResponse> items;
 }
-
-/*
-public record CartResponse(
-        Long cartId,
-        List<CartItemResponse> items
-) {
-
-}
-*/
