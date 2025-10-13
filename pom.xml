@@ -12,7 +12,7 @@
 	<artifactId>cart</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>cart</name>
-	<description>Demo project for Spring Boot</description>
+	<description>Cart</description>
 	<url/>
 	<licenses>
 		<license/>
@@ -27,7 +27,7 @@
 		<url/>
 	</scm>
 	<properties>
-		<java.version>23</java.version>
+		<!--<java.version>24</java.version>  -->
 		<spring-cloud.version>2024.0.0-RC1</spring-cloud.version>
 	</properties>
 	<dependencies>
